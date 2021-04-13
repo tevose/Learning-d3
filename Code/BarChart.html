@@ -46,7 +46,7 @@
             var y = d3.scaleLinear()
                 .range([ height, 0]);
 
-            d3.csv('https://raw.githubusercontent.com/tevose/COMP1101-Assignment2/566c0989ac0fba3770953913143f67019e5bdfd2/COVID-19-weekly-announced-vaccinations-11-March-2021.csv?token=ARB7223FJBZPTSDRQTTLD7DAO35RK').then(data => {
+            d3.csv('https://raw.githubusercontent.com/tevose/Learning-d3/main/Data/COVID-19-weekly-announced-vaccinations-11-March-2021.csv').then(data => {
                 data.forEach(function(d){
                     d.Doses = parseInt(d.Doses)
                 })
