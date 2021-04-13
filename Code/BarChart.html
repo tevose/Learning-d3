@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <style>
+            rect {
+                fill: steelblue
+            }
+        </style>
+        <script src="https://d3js.org/d3.v6.min.js"></script>
+        <title>Visualisations</title>
+    </head>
+    <body>
+        <!--<h1>Shapes</h1>
+        <svg width="500" height="500">
+            <rect x="200" y="50" width="200" height="100" stroke="black" stroke-width="2" fill="red"/>
+            <path d="M50 400 L100 300 L150 350 L200 250 " stroke="black" stroke-width="3" fill="none"/>
+        </svg>
+        <script>
+            const svg = d3.select('svg')
+            var c = svg.append('circle')
+                .attr('cx', 100)
+                .attr('cy', 100)
+                .attr('r', 50)
+                .attr('stroke', "black")
+                .attr('fill', "blue")
+        </script>-->
+        <h1>Bar chart</h1>
+        <div id="barChart"></div>
+        <script>
+
+            var margin = {top: 30, right: 30, bottom: 30, left: 60},
+                width = 800 - margin.left - margin.right,
+                height = 600 - margin.top - margin.bottom;
+
+            var svg = d3.select("#barChart")
+                .append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                    .attr("transform",
+                        "translate(" + margin.left + "," + margin.top + ")");
+
+            var x = d3.scaleBand()
+                .range([ 0, width ])
+            
+            var y = d3.scaleLinear()
+                .range([ height, 0]);
+
+            d3.csv('https://raw.githubusercontent.com/tevose/COMP1101-Assignment2/566c0989ac0fba3770953913143f67019e5bdfd2/COVID-19-weekly-announced-vaccinations-11-March-2021.csv?token=ARB7223FJBZPTSDRQTTLD7DAO35RK').then(data => {
+                data.forEach(function(d){
+                    d.Doses = parseInt(d.Doses)
+                })
+                x.domain(data.map(function(d) { return d.Region; }))
+                    .rangeRound([0, width])
+                    .paddingInner(0.05);
+                y.domain([0, d3.max(data, (d) => d.Doses)])
+
+                svg.selectAll(".bar")
+                    .data(data)
+                    .enter()
+                    .append("rect")
+                        .attr("class", "bar")
+                        .attr("x", function(d) { return x(d.Region); })
+                        .attr("width", x.bandwidth())
+                        .attr("y", function(d) { return y(d.Doses); })
+                        .attr("height", function(d) { return height - y(d.Doses); })
+
+
+                svg.append("g")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(d3.axisBottom(x))
+                
+                svg.append("g")
+                    .call(d3.axisLeft(y))
+            })
+        </script>
+
+    </body>
+</html>

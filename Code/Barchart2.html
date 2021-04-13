@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <style>
+            rect {
+                fill: steelblue
+            }
+            .line {
+                fill: none;
+                stroke: steelblue;
+                stroke-width: 2px;
+            }
+        </style>
+        <script src="https://d3js.org/d3.v6.min.js"></script>
+        <title>Visualisations</title>
+    </head>
+    <body>
+        <h1>Line graph</h1>
+        <select id="selectButton"></select>
+        <div id="lineGraph"></div>
+        <script>
+            var margin = {top: 30, right: 30, bottom: 30, left: 60},
+                width = 800 - margin.left - margin.right,
+                height = 600 - margin.top - margin.bottom;
+
+            var svg = d3.select("#lineGraph")
+                .append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                    .attr("transform",
+                        "translate(" + margin.left + "," + margin.top + ")");
+
+            var x = d3.scaleTime()
+                .range([0, width]);
+
+            var y = d3.scaleLinear()
+                .range([height, 0]);
+
+            var valueline = d3.line()
+                .x(function(d) { return x(d.date); })
+                .y(function(d) { return y(d.Wales); });
+
+            var parseTime = d3.timeParse("%d/%m/%Y");
+
+            d3.csv('https://raw.githubusercontent.com/tevose/COMP1101-Assignment2/main/RegionHospitalCases.csv?token=ARB722ZEA54TBXJUS3BX7UTAPWT4U').then(data => {
+                
+                var allGroup = ["England", "Northern Ireland", "Scotland", "Wales"]
+
+                d3.select("#selectButton")
+                    .selectAll('myOptions')
+                        .data(allGroup)
+                    .enter()
+                        .append('option')
+                    .text(function (d) { return d; })
+                    .attr("value", function (d) { return d; })
+                
+                data.forEach(function(d){
+                    d.date = parseTime(d.date);
+                })
+
+                console.log(data[0])
+                x.domain(d3.extent(data, function(d) { return d.date; }));
+                y.domain([0, 3000]);
+
+                var line = svg
+                    .append("path")
+                    .data([data])
+                    .attr("class", "line")
+                    .attr("d", valueline);
+
+                svg.append("g")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(d3.axisBottom(x));
+
+                svg.append("g")
+                    .call(d3.axisLeft(y));
+
+                function update(selectedGroup) {
+                    var dataFilter = data.map(function(d){return {date: d.date, value:d[selectedGroup]} })
+                    line
+                        .datum(dataFilter)
+                        .transition()
+                        .duration(1000)
+                        .attr("d", d3.line()
+                            .x(function(d) { return x(+d.date) })
+                            .y(function(d) { return y(+d.value) })
+                        )
+                }
+
+                d3.select("#selectButton").on("change", function(d) {
+                    var selectedOption = d3.select(this).property("value")
+                    update(selectedOption)
+                })
+            });
+        </script>
+    </body>
+</html> 
